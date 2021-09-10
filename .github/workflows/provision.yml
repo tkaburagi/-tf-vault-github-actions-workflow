@@ -48,10 +48,8 @@ jobs:
           cd tf-tfc
           ls -ltr
           cat << EOF > .terraformrc
-          {
-            credentials "app.terraform.io" {
+          credentials "app.terraform.io" {
               token = "${TFC_TOKEN}"
-            }
           }
           EOF
           export TF_CLI_CONFIG_FILE=.terraformrc
