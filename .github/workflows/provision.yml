@@ -1,8 +1,12 @@
 name: tfc-azure-provisioning
+# on:
+#   repository_dispatch:
+#     types: 
+#       - repository-src-updated
 on:
-  repository_dispatch:
-    types: 
-      - repository-src-updated
+  push:
+    branches:
+      - main
 jobs:
   tfc-azure-provisioning:
     runs-on: ubuntu-latest
