@@ -11,6 +11,9 @@ jobs:
   tfc-azure-provisioning:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+        env:
+          WS_ID: ${{secrets.WS_ID}} 
       - name: Import TFC API Token from Vault
         id: tfc_secrets
         uses: hashicorp/vault-action@v2.3.1
@@ -45,9 +48,6 @@ jobs:
             secret/data/azure/environment subscription_id | ARM_SUBSCRIPTION_ID;
             secret/data/azure/environment tenant_id | ARM_TENANT_ID ;
       - name: Set TFC Environmet Variables
-      - uses: actions/checkout@v2
-        env:
-          WS_ID: ${{secrets.WS_ID}} 
         run: |
           cd tf-tfc
           ls -ltr
