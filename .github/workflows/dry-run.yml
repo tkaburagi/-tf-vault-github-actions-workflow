@@ -46,6 +46,15 @@ jobs:
           WS_ID: ${{secrets.WS_ID}} 
         run: |
           cd tf-tfc
+          cat << EOF > ~/.terraform.d/credentials.tfrc.json
+          {
+            "credentials": {
+              "app.terraform.io": {
+                "token": "${TFC_TOKEN}"
+              }
+            }
+          }
+          EOF
           ls -ltr
           terraform init
           terraform destroy -auto-approve

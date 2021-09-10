@@ -1,3 +1,13 @@
+terraform {
+  backend "remote" {
+    organization = "tkaburagi"
+
+    workspaces {
+      name = "tfc-vars-azure-vault-gh-actions"
+    }
+  }
+}
+
 provider "tfe" {
   hostname = "app.terraform.io"
 }
