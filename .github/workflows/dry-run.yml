@@ -48,6 +48,7 @@ jobs:
           cd tf-tfc
           ls -ltr
           terraform init
+          terraform destroy -auto-approve
           export TFE_TOKEN=${TFC_TOKEN}
           export TF_VAR_workspace_id=${WS_ID}
           export TF_VAR_arm_client_id=${ARM_CLIENT_ID}
