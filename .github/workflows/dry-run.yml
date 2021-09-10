@@ -2,7 +2,7 @@ name: specurative-plan
 on:
   repository_dispatch:
     types: 
-      - repository-src-updated
+      - repository-src-pr
 jobs:
   specurative-plan:
     runs-on: ubuntu-latest
