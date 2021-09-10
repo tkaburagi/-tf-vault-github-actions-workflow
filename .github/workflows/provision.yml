@@ -12,8 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        env:
-          WS_ID: ${{secrets.WS_ID}} 
+      - uses: actions/checkout@v2
+        with:
+          repository: tkaburagi/tf-vault-github-actions-src
       - name: Import TFC API Token from Vault
         id: tfc_secrets
         uses: hashicorp/vault-action@v2.3.1
