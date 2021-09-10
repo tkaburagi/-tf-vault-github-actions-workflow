@@ -7,9 +7,6 @@ jobs:
   tfc-azure-provisioning:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          repository: tkaburagi/tf-vault-github-actions-src
       - name: Import TFC API Token from Vault
         id: tfc_secrets
         uses: hashicorp/vault-action@v2.3.1
@@ -43,8 +40,13 @@ jobs:
             azure/creds/contributor client_secret | ARM_CLIENT_SECRET ;
             secret/data/azure/environment subscription_id | ARM_SUBSCRIPTION_ID;
             secret/data/azure/environment tenant_id | ARM_TENANT_ID ;
+      - name: Checkout here
+        uses: actions/checkout@v2
+      - name: Checkout src
+        uses: actions/checkout@v2
+        with:
+          repository: tkaburagi/tf-vault-github-actions-src
       - name: Set TFC Environmet Variables
-      - uses: actions/checkout@v2
         env:
           WS_ID: ${{secrets.WS_ID}} 
         run: |
