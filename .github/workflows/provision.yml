@@ -46,9 +46,6 @@ jobs:
             secret/data/azure/environment tenant_id | ARM_TENANT_ID ;
       - name: Set TFC Environmet Variables
       - uses: actions/checkout@v2
-      - uses: actions/checkout@v2
-        with:
-          repository: tkaburagi/tf-vault-github-actions-src
         env:
           WS_ID: ${{secrets.WS_ID}} 
         run: |
