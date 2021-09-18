@@ -1,12 +1,8 @@
 name: tfc-azure-provisioning
-# on:
-#   repository_dispatch:
-#     types: 
-#       - repository-src-updated
 on:
-  push:
-    branches:
-      - main
+  repository_dispatch:
+    types: 
+      - repository-src-updated
 jobs:
   tfc-azure-provisioning:
     runs-on: ubuntu-latest
@@ -107,10 +103,3 @@ jobs:
             $UPLOAD_URL
           rm ./create_config_version.json
           rm ./tf.tar.gz
-      - name: Cleanup Environmet
-        env:
-          VTOKEN: ${{secrets.VAULT_TOKEN}}
-          AZURE_SECRETS_JSON: "${{ toJson(steps.azure_secrets.outputs) }}"
-          TFC_SECRETS_JSON: "${{ toJson(steps.tfc_secrets.outputs) }}" 
-        run: |
-          whoami

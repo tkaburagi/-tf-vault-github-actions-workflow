@@ -1,9 +1,13 @@
 path "azure/creds/contributor" {
-    capabilities = ["read",  "delete"]
+  capabilities = ["read",  "delete"]
 }
 
 path "secret/data/azure/environment" {
-    capabilities = ["read"]
+  capabilities = ["read"]
+}
+
+path "secret/data/github" {
+  capabilities = ["read"]
 }
 
 path "tfc/creds/ci-user" {

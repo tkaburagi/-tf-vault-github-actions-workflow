@@ -1,4 +1,4 @@
-name: specurative-plan
+name: tfc-specurative-plan
 on:
   repository_dispatch:
     types: 
@@ -8,8 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          repository: tkaburagi/tf-vault-github-actions-src
       - name: Import TFC API Token from Vault
         id: tfc_secrets
         uses: hashicorp/vault-action@v2.3.1
@@ -65,6 +63,9 @@ jobs:
           export TF_VAR_arm_sub_id=${ARM_SUBSCRIPTION_ID}
           terraform destroy -auto-approve
           terraform apply -auto-approve
+      - uses: actions/checkout@v2
+        with:
+          repository: tkaburagi/tf-vault-github-actions-src
       - name: Make TFC
         env:
           WS_ID: ${{secrets.WS_ID}}
@@ -144,6 +145,3 @@ jobs:
             --request POST \
             --data @payload.json \
             https://app.terraform.io/api/v2/runs | jq
-      - name: Cleanup Environmet
-        run: |
-          whoami
