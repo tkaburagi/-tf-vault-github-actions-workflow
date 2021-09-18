@@ -4,7 +4,7 @@ on:
     types: 
       - repository-src-pr
 jobs:
-  specurative-plan:
+  tfc-specurative-plan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
