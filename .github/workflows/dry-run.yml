@@ -41,107 +41,106 @@ jobs:
             azure/creds/contributor client_secret | ARM_CLIENT_SECRET ;
             secret/data/azure/environment subscription_id | ARM_SUBSCRIPTION_ID;
             secret/data/azure/environment tenant_id | ARM_TENANT_ID ;
-      # - name: Set TFC Environmet Variables
-      # - uses: actions/checkout@v2
-      #   env:
-      #     WS_ID: ${{secrets.WS_ID}} 
-      #   run: |
-      #     cd tf-tfc
-      #     ls -ltr
-      #     cat << EOF > .terraformrc
-      #     credentials "app.terraform.io" {
-      #         token = "${TFC_TOKEN}"
-      #     }
-      #     EOF
-      #     export TF_CLI_CONFIG_FILE=.terraformrc
-      #     terraform init
-      #     export TFE_TOKEN=${TFC_TOKEN}
-      #     export TF_VAR_workspace_id=${WS_ID}
-      #     export TF_VAR_arm_client_id=${ARM_CLIENT_ID}
-      #     export TF_VAR_arm_client_secret=${ARM_CLIENT_SECRET}
-      #     export TF_VAR_arm_tenant_id=${ARM_TENANT_ID}
-      #     export TF_VAR_arm_sub_id=${ARM_SUBSCRIPTION_ID}
-      #     terraform destroy -auto-approve
-      #     terraform apply -auto-approve
-      # - uses: actions/checkout@v2
-      #   with:
-      #     repository: tkaburagi/tf-vault-github-actions-src
-      # - name: Make TFC
-      #   env:
-      #     WS_ID: ${{secrets.WS_ID}}
-      #     COMMENT: ${{github.event.inputs.comment}}
-      #     BRANCH: ${{github.ref}}
-      #     COMMIT_SHA: ${{github.sha}}
-      #   run: |
-      #     cat << EOF > main.tf
-      #     terraform {
-      #       backend "remote" {
-      #         organization = "tkaburagi"
+      - name: Set TFC Environmet Variables
+        env:
+          WS_ID: ${{secrets.WS_ID}} 
+        run: |
+          cd tf-tfc
+          ls -ltr
+          cat << EOF > .terraformrc
+          credentials "app.terraform.io" {
+              token = "${TFC_TOKEN}"
+          }
+          EOF
+          export TF_CLI_CONFIG_FILE=.terraformrc
+          terraform init
+          export TFE_TOKEN=${TFC_TOKEN}
+          export TF_VAR_workspace_id=${WS_ID}
+          export TF_VAR_arm_client_id=${ARM_CLIENT_ID}
+          export TF_VAR_arm_client_secret=${ARM_CLIENT_SECRET}
+          export TF_VAR_arm_tenant_id=${ARM_TENANT_ID}
+          export TF_VAR_arm_sub_id=${ARM_SUBSCRIPTION_ID}
+          terraform destroy -auto-approve
+          terraform apply -auto-approve
+      - uses: actions/checkout@v2
+        with:
+          repository: tkaburagi/tf-vault-github-actions-src
+      - name: Make TFC
+        env:
+          WS_ID: ${{secrets.WS_ID}}
+          COMMENT: ${{github.event.inputs.comment}}
+          BRANCH: ${{github.ref}}
+          COMMIT_SHA: ${{github.sha}}
+        run: |
+          cat << EOF > main.tf
+          terraform {
+            backend "remote" {
+              organization = "tkaburagi"
 
-      #         workspaces {
-      #           name = "azure-vault-gh-actions"
-      #         }
-      #       }
-      #     }
-      #     provider "azurerm" {
-      #         features {}
-      #     }
-      #     EOF
+              workspaces {
+                name = "azure-vault-gh-actions"
+              }
+            }
+          }
+          provider "azurerm" {
+              features {}
+          }
+          EOF
 
-      #     cat main.tf
-      #     ls -ltrR
-      #     tar -zcvf tf.tar.gz -C . main.tf output.tf variables.tf azure.tf
-      #     echo '{"data":{"type":"configuration-versions","attributes":{"auto-queue-runs":false,"speculative":true}}}' > ./create_config_version.json
-      #     curl \
-      #       --header "Authorization: Bearer ${TFC_TOKEN}" \
-      #       --header "Content-Type: application/vnd.api+json" \
-      #       --request POST \
-      #       --data @create_config_version.json \
-      #       https://app.terraform.io/api/v2/workspaces/${WS_ID}/configuration-versions > output.json
-      #     export UPLOAD_URL=$(cat output.json | jq -r '.data.attributes."upload-url"')
-      #     export CV_ID=$(cat output.json | jq -r '.data."id"')
-      #     curl \
-      #       --header "Content-Type: application/octet-stream" \
-      #       --request PUT \
-      #       --data-binary @tf.tar.gz \
-      #       $UPLOAD_URL
-      #     rm ./create_config_version.json
-      #     rm ./tf.tar.gz
+          cat main.tf
+          ls -ltrR
+          tar -zcvf tf.tar.gz -C . main.tf output.tf variables.tf azure.tf
+          echo '{"data":{"type":"configuration-versions","attributes":{"auto-queue-runs":false,"speculative":true}}}' > ./create_config_version.json
+          curl \
+            --header "Authorization: Bearer ${TFC_TOKEN}" \
+            --header "Content-Type: application/vnd.api+json" \
+            --request POST \
+            --data @create_config_version.json \
+            https://app.terraform.io/api/v2/workspaces/${WS_ID}/configuration-versions > output.json
+          export UPLOAD_URL=$(cat output.json | jq -r '.data.attributes."upload-url"')
+          export CV_ID=$(cat output.json | jq -r '.data."id"')
+          curl \
+            --header "Content-Type: application/octet-stream" \
+            --request PUT \
+            --data-binary @tf.tar.gz \
+            $UPLOAD_URL
+          rm ./create_config_version.json
+          rm ./tf.tar.gz
 
-      #     echo ${COMMIT_SHA}
+          echo ${COMMIT_SHA}
 
-      #     export COMMIT_SHA_SHORT=$(echo ${COMMIT_SHA} | cut -c 1-8)
+          export COMMIT_SHA_SHORT=$(echo ${COMMIT_SHA} | cut -c 1-8)
 
-      #     echo ${COMMIT_SHA_SHORT}
+          echo ${COMMIT_SHA_SHORT}
 
-      #     cat << EOF > payload.json
-      #     {
-      #       "data": {
-      #         "attributes": {
-      #           "message": "Specurative Plan - ${BRANCH}:${COMMIT_SHA_SHORT}"
-      #         },
-      #         "type":"runs",
-      #         "relationships": {
-      #           "workspace": {
-      #             "data": {
-      #               "type": "workspaces",
-      #               "id": "${WS_ID}"
-      #             }
-      #           },
-      #           "configuration-version": {
-      #             "data": {
-      #               "type": "configuration-versions",
-      #               "id": "${CV_ID}"
-      #             }
-      #           }
-      #         }
-      #       }
-      #     }
-      #     EOF
+          cat << EOF > payload.json
+          {
+            "data": {
+              "attributes": {
+                "message": "Specurative Plan - ${BRANCH}:${COMMIT_SHA_SHORT}"
+              },
+              "type":"runs",
+              "relationships": {
+                "workspace": {
+                  "data": {
+                    "type": "workspaces",
+                    "id": "${WS_ID}"
+                  }
+                },
+                "configuration-version": {
+                  "data": {
+                    "type": "configuration-versions",
+                    "id": "${CV_ID}"
+                  }
+                }
+              }
+            }
+          }
+          EOF
 
-      #     curl \
-      #       --header "Authorization: Bearer ${TFC_TOKEN}" \
-      #       --header "Content-Type: application/vnd.api+json" \
-      #       --request POST \
-      #       --data @payload.json \
-      #       https://app.terraform.io/api/v2/runs | jq
+          curl \
+            --header "Authorization: Bearer ${TFC_TOKEN}" \
+            --header "Content-Type: application/vnd.api+json" \
+            --request POST \
+            --data @payload.json \
+            https://app.terraform.io/api/v2/runs | jq
