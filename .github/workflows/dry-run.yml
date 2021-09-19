@@ -151,6 +151,8 @@ jobs:
             --header "Content-Type: application/vnd.api+json" \
             https://app.terraform.io/api/v2/workspaces/${WS_ID} | jq -r '.data.attributes.name' > ws-name
       - name: Output URL
+        env: 
+          TFC_ORG_NAME: ${{ secrets.TFC_ORG_NAME }}
         run: |
           RUN_ID=$(cat run-id)
           WS_NAME=$(cat ws-name)
