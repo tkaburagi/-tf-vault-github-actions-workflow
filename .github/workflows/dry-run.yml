@@ -71,12 +71,17 @@ jobs:
           COMMENT: ${{github.event.inputs.comment}}
           BRANCH: ${{github.ref}}
           COMMIT_SHA: ${{github.sha}}
-          TFC_ORG_NAME: ${{ secrets.TFC_ORG_NAME }}
         run: |
+          curl \
+            --header "Authorization: Bearer ${TFC_TOKEN}" \
+            --header "Content-Type: application/vnd.api+json" \
+            https://app.terraform.io/api/v2/workspaces/${WS_ID} | jq -r '.data.relationships.organization.data.id' > org-name
+          ORG_NAME=$(cat org-name)
+
           cat << EOF > main.tf
           terraform {
             backend "remote" {
-              organization = "${TFC_ORG_NAME}"
+              organization = "${ORG_NAME}"
 
               workspaces {
                 name = "azure-vault-gh-actions"
@@ -152,13 +157,8 @@ jobs:
             https://app.terraform.io/api/v2/workspaces/${WS_ID} | jq -r '.data.attributes.name' > ws-name
       - name: Output URL
         env: 
-          TFC_ORG_NAME: ${{ secrets.TFC_ORG_NAME }}
         run: |
-          cat << EOF > org-name
-          ${TFC_ORG_NAME}
-          EOF
-
-          TFC_ORG_NAME_PLAIN=$(cat org-name)
+          ORG_NAME=$(cat org-name)
           RUN_ID=$(cat run-id)
           WS_NAME=$(cat ws-name)
-          echo "RUN URL: https://app.terraform.io/app/${TFC_ORG_NAME_PLAIN}/workspaces/${WS_NAME}/runs/${RUN_ID}"
+          echo "RUN URL: https://app.terraform.io/app/${ORG_NAME}/workspaces/${WS_NAME}/runs/${RUN_ID}"

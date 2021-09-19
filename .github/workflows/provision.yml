@@ -68,13 +68,11 @@ jobs:
       - name: Make TFC
         env:
           WS_ID: ${{secrets.WS_ID}} 
-          TFC_ORG_NAME: ${{ secrets.TFC_ORG_NAME }}
         run: |
-          cat << EOF > org-name
-          ${TFC_ORG_NAME}
-          EOF
-
-          TFC_ORG_NAME_PLAIN=$(cat org-name)
+          curl \
+            --header "Authorization: Bearer ${TFC_TOKEN}" \
+            --header "Content-Type: application/vnd.api+json" \
+            https://app.terraform.io/api/v2/workspaces/${WS_ID} | jq -r '.data.relationships.organization.data.id' > org-name
           
           curl \
             --header "Authorization: Bearer ${TFC_TOKEN}" \
@@ -82,11 +80,12 @@ jobs:
             https://app.terraform.io/api/v2/workspaces/${WS_ID} | jq -r '.data.attributes.name' > ws-name
           
           WS_NAME=$(cat ws-name)
+          ORG_NAME=$(cat org-name)
 
           cat << EOF > main.tf
           terraform {
             backend "remote" {
-              organization = "${TFC_ORG_NAME_PLAIN}"
+              organization = "${ORG_NAME}"
 
               workspaces {
                 name = "${WS_NAME}"
