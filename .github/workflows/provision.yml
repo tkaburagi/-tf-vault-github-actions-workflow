@@ -12,7 +12,7 @@ jobs:
         id: tfc_secrets
         uses: hashicorp/vault-action@v2.3.1
         with:
-          url: https://vault-cluster.vault.fb180883-fc88-4186-a68d-22878810dae2.aws.hashicorp.cloud:8200
+          url: ${{ secrets.VAULT_URL }}
           token: ${{ secrets.VAULT_TOKEN }}
           exportToken: ${{ secrets.VAULT_TOKEN }}
           namespace: admin
@@ -32,7 +32,7 @@ jobs:
         id: azure_secrets
         uses: hashicorp/vault-action@v2.3.1
         with:
-          url: https://vault-cluster.vault.fb180883-fc88-4186-a68d-22878810dae2.aws.hashicorp.cloud:8200
+          url: ${{ secrets.VAULT_URL }}
           token: ${{ secrets.VAULT_TOKEN }}
           exportToken: ${{ secrets.VAULT_TOKEN }}
           namespace: admin
@@ -68,14 +68,22 @@ jobs:
       - name: Make TFC
         env:
           WS_ID: ${{secrets.WS_ID}} 
+          TFC_ORG_NAME: ${{ TFC_ORG_NAME }}
         run: |
+          curl \
+            --header "Authorization: Bearer ${TFC_TOKEN}" \
+            --header "Content-Type: application/vnd.api+json" \
+            https://app.terraform.io/api/v2/workspaces/${WS_ID} | jq -r '.data.attributes.name' > ws-name
+          
+          WS_NAME=$(cat ws-name)
+
           cat << EOF > main.tf
           terraform {
             backend "remote" {
-              organization = "tkaburagi"
+              organization = "${TFC_ORG_NAME}"
 
               workspaces {
-                name = "azure-vault-gh-actions"
+                name = "${WS_NAME}"
               }
             }
           }
@@ -88,7 +96,9 @@ jobs:
           cat main.tf
           ls -ltrR
           tar -zcvf tf.tar.gz -C . main.tf output.tf variables.tf azure.tf
+
           echo '{"data":{"type":"configuration-version"}}' > ./create_config_version.json
+          
           UPLOAD_URL=($(curl \
             --header "Authorization: Bearer ${TFC_TOKEN}" \
             --header "Content-Type: application/vnd.api+json" \
@@ -96,6 +106,7 @@ jobs:
             --data @create_config_version.json \
             https://app.terraform.io/api/v2/workspaces/${WS_ID}/configuration-versions \
             | jq -r '.data.attributes."upload-url"'))
+          
           curl \
             --header "Content-Type: application/octet-stream" \
             --request PUT \

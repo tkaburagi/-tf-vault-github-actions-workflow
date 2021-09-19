@@ -12,7 +12,7 @@ jobs:
         id: tfc_secrets
         uses: hashicorp/vault-action@v2.3.1
         with:
-          url: https://vault-cluster.vault.fb180883-fc88-4186-a68d-22878810dae2.aws.hashicorp.cloud:8200
+          url: ${{ secrets.VAULT_URL }}
           token: ${{ secrets.VAULT_TOKEN }}
           exportToken: ${{ secrets.VAULT_TOKEN }}
           namespace: admin
@@ -32,7 +32,7 @@ jobs:
         id: azure_secrets
         uses: hashicorp/vault-action@v2.3.1
         with:
-          url: https://vault-cluster.vault.fb180883-fc88-4186-a68d-22878810dae2.aws.hashicorp.cloud:8200
+          url: ${{ secrets.VAULT_URL }}
           token: ${{ secrets.VAULT_TOKEN }}
           exportToken: ${{ secrets.VAULT_TOKEN }}
           namespace: admin
@@ -71,11 +71,12 @@ jobs:
           COMMENT: ${{github.event.inputs.comment}}
           BRANCH: ${{github.ref}}
           COMMIT_SHA: ${{github.sha}}
+          TFC_ORG_NAME: ${{ TFC_ORG_NAME }}
         run: |
           cat << EOF > main.tf
           terraform {
             backend "remote" {
-              organization = "tkaburagi"
+              organization = "${TFC_ORG_NAME}"
 
               workspaces {
                 name = "azure-vault-gh-actions"
@@ -144,12 +145,13 @@ jobs:
             --request POST \
             --data @payload.json \
             https://app.terraform.io/api/v2/runs | jq -r '.data.id' > run-id
+            
           curl \
             --header "Authorization: Bearer ${TFC_TOKEN}" \
             --header "Content-Type: application/vnd.api+json" \
-            https://app.terraform.io/api/v2/workspaces/ws-LbX7FCFrLPbYV5Vn | jq -r '.data.attributes.name' > ws-name
+            https://app.terraform.io/api/v2/workspaces/${WS_ID} | jq -r '.data.attributes.name' > ws-name
       - name: Output URL
         run: |
           RUN_ID=$(cat run-id)
           WS_NAME=$(cat ws-name)
-          echo "RUN URL: https://app.terraform.io/app/tkaburagi/workspaces/${WS_NAME}/runs/${RUN_ID}"
+          echo "RUN URL: https://app.terraform.io/app/${TFC_ORG_NAME}/workspaces/${WS_NAME}/runs/${RUN_ID}"
