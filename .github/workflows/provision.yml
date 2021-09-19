@@ -68,7 +68,7 @@ jobs:
       - name: Make TFC
         env:
           WS_ID: ${{secrets.WS_ID}} 
-          TFC_ORG_NAME: ${{ TFC_ORG_NAME }}
+          TFC_ORG_NAME: ${{ secrets.TFC_ORG_NAME }}
         run: |
           curl \
             --header "Authorization: Bearer ${TFC_TOKEN}" \

@@ -71,7 +71,7 @@ jobs:
           COMMENT: ${{github.event.inputs.comment}}
           BRANCH: ${{github.ref}}
           COMMIT_SHA: ${{github.sha}}
-          TFC_ORG_NAME: ${{ TFC_ORG_NAME }}
+          TFC_ORG_NAME: ${{ secrets.TFC_ORG_NAME }}
         run: |
           cat << EOF > main.tf
           terraform {
@@ -145,7 +145,7 @@ jobs:
             --request POST \
             --data @payload.json \
             https://app.terraform.io/api/v2/runs | jq -r '.data.id' > run-id
-            
+
           curl \
             --header "Authorization: Bearer ${TFC_TOKEN}" \
             --header "Content-Type: application/vnd.api+json" \
