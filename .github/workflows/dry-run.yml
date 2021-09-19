@@ -155,7 +155,7 @@ jobs:
           TFC_ORG_NAME: ${{ secrets.TFC_ORG_NAME }}
         run: |
           cat << EOF > org-name
-            ${TFC_ORG_NAME}
+          ${TFC_ORG_NAME}
           EOF
 
           TFC_ORG_NAME_PLAIN=$(org-name)

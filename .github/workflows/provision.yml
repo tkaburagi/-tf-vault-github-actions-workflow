@@ -70,6 +70,12 @@ jobs:
           WS_ID: ${{secrets.WS_ID}} 
           TFC_ORG_NAME: ${{ secrets.TFC_ORG_NAME }}
         run: |
+          cat << EOF > org-name
+          ${TFC_ORG_NAME}
+          EOF
+
+          TFC_ORG_NAME_PLAIN=$(org-name)
+          
           curl \
             --header "Authorization: Bearer ${TFC_TOKEN}" \
             --header "Content-Type: application/vnd.api+json" \
@@ -80,7 +86,7 @@ jobs:
           cat << EOF > main.tf
           terraform {
             backend "remote" {
-              organization = "${TFC_ORG_NAME}"
+              organization = "${TFC_ORG_NAME_PLAIN}"
 
               workspaces {
                 name = "${WS_NAME}"
