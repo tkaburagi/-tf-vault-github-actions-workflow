@@ -74,7 +74,7 @@ jobs:
           ${TFC_ORG_NAME}
           EOF
 
-          TFC_ORG_NAME_PLAIN=$(org-name)
+          TFC_ORG_NAME_PLAIN=$(cat org-name)
           
           curl \
             --header "Authorization: Bearer ${TFC_TOKEN}" \

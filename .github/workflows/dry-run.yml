@@ -158,7 +158,7 @@ jobs:
           ${TFC_ORG_NAME}
           EOF
 
-          TFC_ORG_NAME_PLAIN=$(org-name)
+          TFC_ORG_NAME_PLAIN=$(cat org-name)
           RUN_ID=$(cat run-id)
           WS_NAME=$(cat ws-name)
           echo "RUN URL: https://app.terraform.io/app/${TFC_ORG_NAME_PLAIN}/workspaces/${WS_NAME}/runs/${RUN_ID}"
