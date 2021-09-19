@@ -143,4 +143,13 @@ jobs:
             --header "Content-Type: application/vnd.api+json" \
             --request POST \
             --data @payload.json \
-            https://app.terraform.io/api/v2/runs | jq
+            https://app.terraform.io/api/v2/runs | jq -r '.data.id' > run-id
+          curl \
+            --header "Authorization: Bearer $TCF_TOKEN" \
+            --header "Content-Type: application/vnd.api+json" \
+            https://app.terraform.io/api/v2/workspaces/ws-LbX7FCFrLPbYV5Vn | jq -r '.data.attributes.name' > ws-name
+      - name: Output URL
+        run: |
+          RUN_ID=$(cat run-id)
+          WS_NAME=$(cat ws-name)
+          echo "RUN URL: https://app.terraform.io/app/tkaburagi/workspaces/${WS_NAME}/runs/${RUN_ID}"
