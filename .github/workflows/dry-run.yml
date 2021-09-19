@@ -154,6 +154,7 @@ jobs:
         env: 
           TFC_ORG_NAME: ${{ secrets.TFC_ORG_NAME }}
         run: |
+          TFC_ORG_NAME_PLAIN=${TFC_ORG_NAME}
           RUN_ID=$(cat run-id)
           WS_NAME=$(cat ws-name)
-          echo "RUN URL: https://app.terraform.io/app/${TFC_ORG_NAME}/workspaces/${WS_NAME}/runs/${RUN_ID}"
+          echo "RUN URL: https://app.terraform.io/app/${TFC_ORG_NAME_PLAIN}/workspaces/${WS_NAME}/runs/${RUN_ID}"
