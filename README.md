@@ -10,7 +10,7 @@
  vault secrets enable -path=tfc terraform
  vault secrets enable -path=secret/ kv-v2
  vaukt secrets enable azure
- vault write tfc/role/ci-user user_id=user-xxxxxxxx
+ vault write tfc/role/ci-user user_id=user-xxxxxxxx ttl=3m
  vault write tfc/config token=xxxxxxxxx
  vault kv put secret/azure/environment \
     subscription_id="" \
@@ -20,6 +20,14 @@
     client_id="${CLIENT_ID}" \
     client_secret="${CLIENT_SECRET}" \
     tenant_id="${TENANT_ID}"
+vault write azure/roles/contributor ttl=10m azure_roles=-<<EOF
+    [
+      {
+        "role_name": "Contributor",
+        "scope": "/subscriptions/${SUB_ID}/resourceGroups/${RESOURCE_ID}"
+      }
+    ]
+EOF
 vault policy write azure-read policy.hcl
 vault token create -policy azure-read -orphan
 ```
